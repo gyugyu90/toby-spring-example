@@ -1,6 +1,6 @@
 package user.dao;
 
-import spring.user.domain.User;
+import user.domain.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
