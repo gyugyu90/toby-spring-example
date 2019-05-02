@@ -2,6 +2,7 @@ package com.gyugyu.tobyspringexample;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import user.dao.CountingConnectionMaker;
 import user.dao.DaoFactory;
 import user.dao.UserDao;
 
@@ -16,6 +17,8 @@ public class UserDaoTest {
         UserDao dao = context.getBean("userDao", UserDao.class);
         System.out.println(dao.get("whiteship").getName());
 
+        CountingConnectionMaker ccm = context.getBean("connectionMaker", CountingConnectionMaker.class);
+        System.out.println("Connection counter : " + ccm.getCounter());
     }
 
 }

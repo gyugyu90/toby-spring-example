@@ -23,6 +23,11 @@ public class DaoFactory {
 
     @Bean
     public ConnectionMaker connectionMaker() {
+        return new CountingConnectionMaker(realConnectionMaker());
+    }
+
+    @Bean
+    public ConnectionMaker realConnectionMaker(){
         return new DConnectionMaker();
     }
 
