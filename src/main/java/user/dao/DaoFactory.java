@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DaoFactory {
 
-    @Bean
+//    @Bean
     public UserDao userDao() {
         //return new UserDao(connectionMaker()); // 팩토리 메소드에서 생성 로직을 결정
         UserDao userDao = new UserDao();
