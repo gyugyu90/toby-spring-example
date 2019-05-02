@@ -1,37 +1,32 @@
 package user.dao;
 
+import com.mysql.cj.jdbc.Driver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+
+import javax.sql.DataSource;
 
 @Configuration
 public class DaoFactory {
 
-//    @Bean
+    @Bean
     public UserDao userDao() {
-        //return new UserDao(connectionMaker()); // 팩토리 메소드에서 생성 로직을 결정
         UserDao userDao = new UserDao();
-        userDao.setConnectionMaker(connectionMaker());
+        userDao.setDataSource(dataSource());
         return userDao;
     }
 
     @Bean
-    public AccountDao accountDao() {
-        return new AccountDao(connectionMaker());
-    }
+    public DataSource dataSource() {
+        SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
 
-    @Bean
-    public MessageDao messageDao() {
-        return new MessageDao(connectionMaker());
-    }
+        dataSource.setDriverClass(Driver.class);
+        dataSource.setUrl("jdbc:mysql://localhost/tobyspring?serverTimezone=Asia/Seoul");
+        dataSource.setUsername("root");
+        dataSource.setPassword("password");
 
-    @Bean
-    public ConnectionMaker connectionMaker() {
-        return new CountingConnectionMaker(realConnectionMaker());
-    }
-
-    @Bean
-    public ConnectionMaker realConnectionMaker(){
-        return new DConnectionMaker();
+        return dataSource;
     }
 
 }
