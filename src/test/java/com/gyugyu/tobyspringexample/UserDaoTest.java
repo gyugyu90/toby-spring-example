@@ -17,13 +17,15 @@ import static org.junit.Assert.assertThat;
 public class UserDaoTest {
 
     @Test
-    public void addAndGet() throws ClassNotFoundException, SQLException {
+    public void addAndGet() throws SQLException {
 
 //        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
         ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
 
         UserDao dao = context.getBean("userDao", UserDao.class);
-        System.out.println(dao.get("whiteship").getName());
+
+        dao.deleteAll();
+        assertThat(dao.getCount(), is(0));
 
         User user1 = new User();
         String uuid = UUID.randomUUID().toString().substring(0,10);
@@ -32,6 +34,7 @@ public class UserDaoTest {
         user1.setPassword("password");
 
         dao.add(user1);
+        assertThat(dao.getCount(), is(1));
 
         User user2 = dao.get(uuid);
 
