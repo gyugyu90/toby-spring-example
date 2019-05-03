@@ -1,6 +1,7 @@
 package user.dao;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import user.domain.User;
 
 import javax.sql.DataSource;
@@ -42,16 +43,19 @@ public class UserDao {
         ps.setString(1, id);
 
         ResultSet rs = ps.executeQuery();
-        rs.next();
-
-        User user = new User();
-        user.setId(rs.getString("id"));
-        user.setName(rs.getString("name"));
-        user.setPassword(rs.getString("password"));
+        User user = null;
+        if(rs.next()){ // 결과가 있을 때만 User 오브젝트를 만들고 값을 넣음
+            user = new User();
+            user.setId(rs.getString("id"));
+            user.setName(rs.getString("name"));
+            user.setPassword(rs.getString("password"));
+        }
 
         rs.close();
         ps.close();
         c.close();
+
+        if(user == null) throw new EmptyResultDataAccessException(1);
 
         return user;
     }
