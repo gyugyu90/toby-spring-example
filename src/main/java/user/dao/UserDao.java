@@ -1,5 +1,6 @@
 package user.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import user.domain.User;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 
 public class UserDao {
 
+    @Autowired
     private DataSource dataSource;
 
     public void setDataSource(DataSource dataSource) {
