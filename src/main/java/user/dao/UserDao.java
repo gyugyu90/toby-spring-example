@@ -20,21 +20,14 @@ public class UserDao {
     }
 
     public void add(final User user) throws SQLException {
-
-        class AddStatement implements StatementStrategy {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
-                // 로컬 클래스의 코드에서 user 접근 가능
-                ps.setString(1, user.getId());
-                ps.setString(2, user.getName());
-                ps.setString(3, user.getPassword());
-                return ps;
-            }
-        }
-
-        StatementStrategy st = new AddStatement();
-        jdbcContextWithStatementStrategy(st);
+        jdbcContextWithStatementStrategy(c -> {
+            PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
+            // 로컬 클래스의 코드에서 user 접근 가능
+            ps.setString(1, user.getId());
+            ps.setString(2, user.getName());
+            ps.setString(3, user.getPassword());
+            return ps;
+        });
     }
 
     public User get(String id) throws SQLException{
@@ -63,11 +56,7 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-
-        StatementStrategy st = new DeleteAllStatement(); // 선정한 전략 클래스의 오브젝트 생성
-        jdbcContextWithStatementStrategy(st); // 컨텍스트 호출.. 전략 오브젝트 전달
-        // 이렇게 하면 모든 statement 마다 오브젝트를 하나씩 만들어야 한다
-
+        jdbcContextWithStatementStrategy(c -> c.prepareStatement("delete from users")); // 컨텍스트 호출.. 전략 오브젝트 전달
     }
 
     public int getCount() throws SQLException {
