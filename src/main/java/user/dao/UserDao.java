@@ -1,6 +1,8 @@
 package user.dao;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import user.domain.User;
 
 import javax.sql.DataSource;
@@ -13,74 +15,43 @@ public class UserDao {
 
     private DataSource dataSource;
 
-    private JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
 
     public void setDataSource(DataSource dataSource) {
-        this.jdbcContext = new JdbcContext();
-        jdbcContext.setDataSource(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
 
         this.dataSource = dataSource;
     }
 
     public void add(final User user) throws SQLException {
-        jdbcContext.workWithStatementStrategy(c -> {
-            PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
-            // 로컬 클래스의 코드에서 user 접근 가능
-            ps.setString(1, user.getId());
-            ps.setString(2, user.getName());
-            ps.setString(3, user.getPassword());
-            return ps;
-        });
+        jdbcTemplate.update("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
     }
 
     public User get(String id) throws SQLException{
 
-        Connection c = dataSource.getConnection();
+        return jdbcTemplate.queryForObject("select * from users where id = ?", new Object[]{id}, new RowMapper<User>() {
+            @Override
+            public User mapRow(ResultSet rs, int i) throws SQLException {
+                User user = new User();
+                user.setId(rs.getString("id"));
+                user.setName(rs.getString("name"));
+                user.setPassword(rs.getString("password"));
+                return user;
+            }
+        });
 
-        PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
-        ps.setString(1, id);
-
-        ResultSet rs = ps.executeQuery();
-        User user = null;
-        if(rs.next()){ // 결과가 있을 때만 User 오브젝트를 만들고 값을 넣음
-            user = new User();
-            user.setId(rs.getString("id"));
-            user.setName(rs.getString("name"));
-            user.setPassword(rs.getString("password"));
-        }
-
-        rs.close();
-        ps.close();
-        c.close();
-
-        if(user == null) throw new EmptyResultDataAccessException(1);
-
-        return user;
     }
 
-    public void deleteAll() throws SQLException {
-        jdbcContext.executeSql("delete from users");
+    public void deleteAll() {
+        jdbcTemplate.update("delete from users");
     }
 
-    public int getCount() throws SQLException {
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try {
-            c = dataSource.getConnection();
-            ps = c.prepareStatement("select count(*) from users");
-
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (rs != null) { try { rs.close(); } catch (SQLException e) { } }
-            if (ps != null) { try { ps.close(); } catch (SQLException e) { } }
-            if (c != null) { try { c.close(); } catch (SQLException e) { } }
-        }
+    public int getCount() {
+        return jdbcTemplate.query(connection -> connection.prepareStatement("select count(*) from users"), resultSet -> {
+            resultSet.next();
+            return resultSet.getInt(1);
+        });
+        // queryForInt는 없어졌나..
     }
 
 }
