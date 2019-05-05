@@ -1,6 +1,5 @@
 package user.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import user.domain.User;
 
@@ -60,7 +59,7 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContext.workWithStatementStrategy(c -> c.prepareStatement("delete from users")); // 컨텍스트 호출.. 전략 오브젝트 전달
+        jdbcContext.executeSql("delete from users");
     }
 
     public int getCount() throws SQLException {
@@ -83,7 +82,5 @@ public class UserDao {
             if (c != null) { try { c.close(); } catch (SQLException e) { } }
         }
     }
-
-
 
 }
