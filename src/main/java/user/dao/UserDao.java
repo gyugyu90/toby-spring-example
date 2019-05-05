@@ -1,27 +1,26 @@
 package user.dao;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import user.domain.User;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserDao {
 
-    private DataSource dataSource;
-
     private JdbcTemplate jdbcTemplate;
+
+    private RowMapper<User> userMapper = (rs, i) -> {
+        User user = new User();
+        user.setId(rs.getString("id"));
+        user.setName(rs.getString("name"));
+        user.setPassword(rs.getString("password"));
+        return user;
+    };
 
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-
-        this.dataSource = dataSource;
     }
 
     public void add(final User user) {
@@ -29,18 +28,7 @@ public class UserDao {
     }
 
     public User get(String id){
-
-        return jdbcTemplate.queryForObject("select * from users where id = ?", new Object[]{id}, new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs, int i) throws SQLException {
-                User user = new User();
-                user.setId(rs.getString("id"));
-                user.setName(rs.getString("name"));
-                user.setPassword(rs.getString("password"));
-                return user;
-            }
-        });
-
+        return jdbcTemplate.queryForObject("select * from users where id = ?", new Object[]{id}, userMapper);
     }
 
     public void deleteAll() {
@@ -56,16 +44,7 @@ public class UserDao {
     }
 
     public List<User> getAll() {
-        return jdbcTemplate.query("select * from users order by id", new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet resultSet, int i) throws SQLException {
-                User user = new User();
-                user.setId(resultSet.getString("id"));
-                user.setName(resultSet.getString("name"));
-                user.setPassword(resultSet.getString("password"));
-                return user;
-            }
-        });
+        return jdbcTemplate.query("select * from users order by id", userMapper);
     }
 
 

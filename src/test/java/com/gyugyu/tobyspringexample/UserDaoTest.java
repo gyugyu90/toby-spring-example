@@ -10,7 +10,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import user.dao.UserDao;
 import user.domain.User;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -36,7 +35,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void addAndGet() throws SQLException {
+    public void addAndGet() {
 
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
@@ -57,7 +56,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void count() throws SQLException {
+    public void count() {
 
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
@@ -73,7 +72,7 @@ public class UserDaoTest {
     }
 
     @Test(expected = EmptyResultDataAccessException.class) // 테스트 중에 발생할 것으로 기대하는 예외 클래스를 지정
-    public void getUserFailure() throws SQLException {
+    public void getUserFailure() {
 
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
