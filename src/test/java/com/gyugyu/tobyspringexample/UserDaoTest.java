@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import user.dao.UserDao;
 import user.domain.User;
+import user.exception.DuplicateUserIdException;
 
 import java.util.List;
 
@@ -110,5 +111,13 @@ public class UserDaoTest {
         assertThat(user1.getId(), is(user2.getId()));
         assertThat(user1.getName(), is(user2.getName()));
         assertThat(user1.getPassword(), is(user2.getPassword()));
+    }
+
+    @Test(expected = DuplicateUserIdException.class)
+    public void duplicateKey() {
+        dao.deleteAll();
+
+        dao.add(user1);
+        dao.add(user1); // 강제로 같은 사용자 두 번 등록
     }
 }
