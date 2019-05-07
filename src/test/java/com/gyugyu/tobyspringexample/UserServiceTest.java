@@ -48,17 +48,22 @@ public class UserServiceTest {
         for(User user: users) userDao.add(user);
 
         userService.upgradeLevels();
-        checkLevel(users.get(0), Level.BASIC);
-        checkLevel(users.get(1), Level.SILVER);
-        checkLevel(users.get(2), Level.SILVER);
-        checkLevel(users.get(3), Level.GOLD);
-        checkLevel(users.get(4), Level.GOLD);
+        checkLevelUpgraded(users.get(0), false);
+        checkLevelUpgraded(users.get(1), true);
+        checkLevelUpgraded(users.get(2), false);
+        checkLevelUpgraded(users.get(3), true);
+        checkLevelUpgraded(users.get(4), false);
     }
 
-    // 테스트 로직을 따로 빼내서 재사용
-    private void checkLevel(User user, Level expectedLevel) {
+    // 어떤 레벨로 바뀔 것인가가 아니라, 다음 레벨로 업그레이드 될 것인가 아닌가를 지정한다.
+    private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
-        assertThat(userUpdate.getLevel(), is(expectedLevel));
+
+        if(upgraded) {
+            assertThat(userUpdate.getLevel(), is(user.getLevel().nextLevel()));
+        } else {
+            assertThat(userUpdate.getLevel(), is(user.getLevel()));
+        }
     }
 
     @Test
