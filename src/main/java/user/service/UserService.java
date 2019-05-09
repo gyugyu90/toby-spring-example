@@ -1,7 +1,11 @@
 package user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import user.dao.UserDao;
 import user.domain.Level;
@@ -32,12 +36,10 @@ public class UserService {
 
 
     public void upgradeLevels() throws Exception {
-        // 트랜잭션 동기화 관리자를 이용해 동기화 작업을 초기화
-        TransactionSynchronizationManager.initSynchronization();
-        // DB 커넥션을 생성하고 트랜잭션을 시작.
-        // 이후의 DAO 작업은 모두 여기서 시작한 트랜잭션 안에서 진행된다.
-        Connection c = DataSourceUtils.getConnection(dataSource);
-        c.setAutoCommit(false);
+        // JDBC 트랜잭션 추상 오브젝트 생성
+        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+        // 트랜잭션 시작
+        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
 
         try {
             List<User> users = userDao.getAll();
@@ -46,16 +48,10 @@ public class UserService {
                     upgradeLevel(user);
                 }
             }
-            c.commit(); // 정상적으로 작업을 마치면 트랜잭션 커밋
+            transactionManager.commit(status); // 트랜잭션 커밋
         } catch (Exception e) {
-            c.rollback(); // 예외가 발생하면 롤백
+            transactionManager.rollback(status); // 트랜잭션 롤백
             throw e;
-        } finally {
-            // DB 커넥션을 안전하게 닫는다.
-            DataSourceUtils.releaseConnection(c, dataSource);
-            // 동기화 작업 종료 및 정리
-            TransactionSynchronizationManager.unbindResource(this.dataSource);
-            TransactionSynchronizationManager.clearSynchronization();
         }
 
     }
