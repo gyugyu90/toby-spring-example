@@ -9,19 +9,7 @@
         <property name="mailSender" ref="mailSender"/>
     </bean>
 
-    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="smtp.gmail.com"/>
-        <property name="username" value="kh2000park@gmail.com"/>
-        <property name="password" value="{2nd-factor-password}"/>
-        <property name="javaMailProperties">
-            <props>
-                <prop key="mail.smtp.auth">true</prop>
-                <prop key="mail.smtp.port">587</prop>
-                <prop key="mail.smtp.starttls.enable">true</prop>
-                <prop key="mail.smtp.ssl.trust">smtp.gmail.com</prop>
-            </props>
-        </property>
-    </bean>
+    <bean id="mailSender" class="user.service.DummyMailSender"/>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
