@@ -84,6 +84,7 @@ public class UserService {
         Authenticator auth = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
+                // 실제 사용하려면 2단계 인증을 활성화 하고 기존 패스워드 대신 16자리 generated password를 넣어야 함
                 return new PasswordAuthentication("kh2000park@gmail.com", "{2nd-factor-pw}");
             }
         };
@@ -96,7 +97,7 @@ public class UserService {
             message.setSubject("Upgrade 안내");
             message.setText("사용자님의 등급이 " + user.getLevel().name() + "로 업그레이드 되었습니다.");
 
-            Transport.send(message);
+            //Transport.send(message);
         } catch (AddressException ex) {
             throw new RuntimeException(ex);
         } catch (MessagingException ex) {
