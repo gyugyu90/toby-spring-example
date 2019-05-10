@@ -35,5 +35,8 @@ USE TESTDB;
 
 ALTER TABLE USERS ADD level TINYINT NOT NULL;
 ALTER TABLE USERS ADD login INT NOT NULL;
-ALTER TABLE USERS ADD recommend INT NOT NULL;
+ALTER TABLE USERS ADD recommend INT NOT NULL;  
+ALTER TABLE USERS ADD email varchar(30);
 ```
+
+SMTP: GMAIL => 2단계 인증 password를 {2nd-factor-password}에 설정  
