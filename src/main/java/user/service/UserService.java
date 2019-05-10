@@ -7,7 +7,12 @@ import user.dao.UserDao;
 import user.domain.Level;
 import user.domain.User;
 
+import javax.mail.*;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.util.List;
+import java.util.Properties;
 
 public class UserService {
 
@@ -58,6 +63,7 @@ public class UserService {
     protected void upgradeLevel(User user) {
         user.upgradeLevel();
         userDao.update(user);
+        sendUpgradeEMail(user);
     }
 
     public void add(User user) {
@@ -65,5 +71,37 @@ public class UserService {
         userDao.add(user);
     }
 
+    private void sendUpgradeEMail(User user) {
+        String host = "smtp.gmail.com";
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.auth","true");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.ssl.trust", host);
+
+        Authenticator auth = new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("kh2000park@gmail.com", "{2nd-factor-pw}");
+            }
+        };
+        Session s = Session.getInstance(props, auth);
+
+        MimeMessage message = new MimeMessage(s);
+        try {
+            message.setFrom(new InternetAddress("kh2000park@gmail.com"));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail()));
+            message.setSubject("Upgrade 안내");
+            message.setText("사용자님의 등급이 " + user.getLevel().name() + "로 업그레이드 되었습니다.");
+
+            Transport.send(message);
+        } catch (AddressException ex) {
+            throw new RuntimeException(ex);
+        } catch (MessagingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
 }

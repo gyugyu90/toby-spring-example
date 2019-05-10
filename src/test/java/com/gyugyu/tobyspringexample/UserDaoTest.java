@@ -31,9 +31,9 @@ public class UserDaoTest {
     @Before
     public void setUp(){
 
-        user1 = new User("user1", "박성철", "password1", Level.BASIC, 1, 0);
-        user2 = new User("user2", "이길원", "password2", Level.SILVER, 55, 10);
-        user3 = new User("user3", "박범진", "password3", Level.GOLD, 100, 40);
+        user1 = new User("user1", "박성철", "password1", "kh2000park@gmail.com", Level.BASIC, 1, 0);
+        user2 = new User("user2", "이길원", "password2", "kh2000park@gmail.com", Level.SILVER, 55, 10);
+        user3 = new User("user3", "박범진", "password3", "kh2000park@gmail.com", Level.GOLD, 100, 40);
     }
 
     @Test
