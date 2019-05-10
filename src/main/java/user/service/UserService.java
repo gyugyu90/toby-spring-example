@@ -1,7 +1,7 @@
 package user.service;
 
+import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -9,17 +9,14 @@ import user.dao.UserDao;
 import user.domain.Level;
 import user.domain.User;
 
-import javax.mail.*;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.util.List;
-import java.util.Properties;
 
 public class UserService {
 
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
+
+    private MailSender mailSender;
 
     private UserDao userDao;
 
@@ -31,6 +28,10 @@ public class UserService {
 
     public void setTransactionManager(PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
+    }
+
+    public void setMailSender(MailSender mailSender) {
+        this.mailSender = mailSender;
     }
 
     public void upgradeLevels() throws Exception {
@@ -74,27 +75,9 @@ public class UserService {
     }
 
     private void sendUpgradeEMail(User user) {
-
-        String host = "smtp.gmail.com";
-        String email = "kh2000park@gmail.com";
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(host);
-        mailSender.setUsername(email);
-        mailSender.setPassword("{2nd-factor-password}");
-        // 실제 사용하려면 2단계 인증을 활성화 하고 기존 패스워드 대신 16자리 generated password를 넣어야 함
-
-        Properties props = new Properties();
-        props.put("mail.smtp.host", host);
-        props.put("mail.smtp.auth","true");
-        props.put("mail.smtp.port", "587");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.ssl.trust", host);
-
-        mailSender.setJavaMailProperties(props);
-
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(user.getEmail());
-        mailMessage.setFrom(email);
+        mailMessage.setFrom("kh2000park@gmail.com");
         mailMessage.setSubject("Upgrade 안내");
         mailMessage.setText("사용자님의 등급이 " + user.getLevel().name() + "로 업그레이드 되었습니다.");
 
