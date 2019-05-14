@@ -62,24 +62,34 @@ public class UserServiceTest {
     @Test
     @DirtiesContext
     public void upgradeLevels() throws Exception {
-        userDao.deleteAll();
-        for(User user: users) userDao.add(user);
+
+        UserServiceImpl userServiceImpl = new UserServiceImpl(); // 고립된 테스트에서는 테스트 대상 오브젝트를 직접 생성하면 된다.
+
+        MockUserDao mockUserDao = new MockUserDao(this.users);
+        userServiceImpl.setUserDao(mockUserDao);
 
         MockMailSender mockMailSender = new MockMailSender();
         userServiceImpl.setMailSender(mockMailSender);
 
-        userService.upgradeLevels();
-        checkLevelUpgraded(users.get(0), false);
-        checkLevelUpgraded(users.get(1), true);
-        checkLevelUpgraded(users.get(2), false);
-        checkLevelUpgraded(users.get(3), true);
-        checkLevelUpgraded(users.get(4), false);
+        userServiceImpl.upgradeLevels();
+
+        List<User> updated = mockUserDao.getUpdated();
+        assertThat(updated.size(), is(2));
+        checkUserAndLevel(updated.get(0), "joytouch", Level.SILVER);
+        checkUserAndLevel(updated.get(1), "madnite1", Level.GOLD);
 
         List<String> request = mockMailSender.getRequests();
         assertThat(request.size(), is(2));
         assertThat(request.get(0), is(users.get(1).getEmail()));
         assertThat(request.get(1), is(users.get(3).getEmail()));
     }
+
+    // id, level 검증
+    private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
+        assertThat(updated.getId(), is(expectedId));
+        assertThat(updated.getLevel(), is(expectedLevel));
+    }
+
 
     // 어떤 레벨로 바뀔 것인가가 아니라, 다음 레벨로 업그레이드 될 것인가 아닌가를 지정한다.
     private void checkLevelUpgraded(User user, boolean upgraded) {
@@ -172,5 +182,45 @@ public class UserServiceTest {
 
         }
     }
+
+    static class MockUserDao implements UserDao {
+
+        private List<User> users; // 레벨 업그레이드 후보 User 오브젝트 목록
+        private List<User> updated = new ArrayList<>(); // 업그레이드 대상 오브젝트를 저장해둘 목록
+
+        public MockUserDao(List<User> users) {
+            this.users = users;
+        }
+
+        public List<User> getUpdated() {
+            return updated;
+        }
+
+        @Override
+        public void update(User user) {
+            updated.add(user); // 목 오브젝트 기능 제공
+        }
+
+        @Override
+        public List<User> getAll() {
+            return this.users;
+        }
+
+        // 테스트에 사용되지 않는 메소드
+        @Override
+        public void deleteAll() { throw new UnsupportedOperationException(); }
+
+        @Override
+        public int getCount() { throw new UnsupportedOperationException(); }
+
+        @Override
+        public void add(User user) { throw new UnsupportedOperationException(); }
+
+        @Override
+        public User get(String id) { throw new UnsupportedOperationException(); }
+
+    }
+
+
 
 }
