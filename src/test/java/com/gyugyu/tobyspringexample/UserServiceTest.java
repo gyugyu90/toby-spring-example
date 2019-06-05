@@ -3,6 +3,7 @@ package com.gyugyu.tobyspringexample;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
@@ -25,6 +26,8 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/test-applicationContext.xml")
@@ -82,6 +85,33 @@ public class UserServiceTest {
         assertThat(request.size(), is(2));
         assertThat(request.get(0), is(users.get(1).getEmail()));
         assertThat(request.get(1), is(users.get(3).getEmail()));
+    }
+
+    @Test
+    public void mockUpgradeLevels() throws Exception {
+        UserServiceImpl userServiceImpl = new UserServiceImpl();
+
+        UserDao mockUserDao = mock(UserDao.class);
+        when(mockUserDao.getAll()).thenReturn(this.users); // getAll()이 호출됐을 때 리턴 값을 설정해준다
+        userServiceImpl.setUserDao(mockUserDao); // 테스트 대상에 DI
+
+        MailSender mockMailSender = mock(MailSender.class);
+        userServiceImpl.setMailSender(mockMailSender);
+
+        userServiceImpl.upgradeLevels();
+
+        verify(mockUserDao, times(2)).update(any(User.class)); // times() => 메소드 호출 횟수
+        verify(mockUserDao, times(2)).update(any(User.class)); // any() => 파라미터의 내용은 무시하고 호출 횟수만 확인
+        verify(mockUserDao).update(users.get(1)); // 호출 횟수 검사가 끝나면 파라미터 검증.. 해당 파라미터로 호출되었는지 검증
+        assertThat(users.get(1).getLevel(), is(Level.SILVER));
+        verify(mockUserDao).update(users.get(3));
+        assertThat(users.get(3).getLevel(), is(Level.GOLD));
+
+        ArgumentCaptor<SimpleMailMessage> mailMessageArg = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mockMailSender, times(2)).send(mailMessageArg.capture());
+        List<SimpleMailMessage> mailMessages = mailMessageArg.getAllValues();
+        assertThat(mailMessages.get(0).getTo()[0], is(users.get(1).getEmail()));
+        assertThat(mailMessages.get(1).getTo()[0], is(users.get(3).getEmail()));
     }
 
     // id, level 검증
