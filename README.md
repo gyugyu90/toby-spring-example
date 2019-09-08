@@ -5,6 +5,8 @@ Java 1.8
 Spring Boot 2.1.4  
 MySQL 8.0.15
 
+mysql 접속이 잘 안 되면..
+`mysql.server restart`
 
 #### SQL
 1장
