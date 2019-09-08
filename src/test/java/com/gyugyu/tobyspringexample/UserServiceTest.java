@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -16,9 +17,9 @@ import reflection.TransactionHandler;
 import user.dao.UserDao;
 import user.domain.Level;
 import user.domain.User;
+import user.service.TxProxyFactoryBean;
 import user.service.UserService;
 import user.service.UserServiceImpl;
-import user.service.UserServiceTx;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -39,10 +40,7 @@ public class UserServiceTest {
     private UserService userService;
 
     @Autowired
-    private UserServiceImpl userServiceImpl;
-
-    @Autowired
-    private PlatformTransactionManager transactionManager;
+    private ApplicationContext context;
 
     @Autowired
     private UserDao userDao;
@@ -154,19 +152,16 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeAllOrNothing() {
+    @DirtiesContext // dynamic proxy factory bean을 직접 만들어 사용할 때는 없앴다가 다시 등장한 컨텍스트 무효화 annotation
+    public void upgradeAllOrNothing() throws Exception {
 
         TestUserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao); // 수동 DI
         testUserService.setMailSender(mailSender);
 
-        TransactionHandler txHandler = new TransactionHandler();
-        txHandler.setTarget(testUserService);
-        txHandler.setTransactionManager(transactionManager);
-        txHandler.setPattern("upgradeLevels");
-        UserService txUserService = (UserService) Proxy.newProxyInstance(
-                getClass().getClassLoader(), new Class[] { UserService.class }, txHandler
-        ); // UserService 인터페이스 타입의 다이내믹 프록시 생성
+        TxProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", TxProxyFactoryBean.class);
+        txProxyFactoryBean.setTarget(testUserService);
+        UserService txUserService = (UserService) txProxyFactoryBean.getObject(); // UserService 인터페이스 타입의 다이내믹 프록시 생성
 
         // 초기화
         userDao.deleteAll();
