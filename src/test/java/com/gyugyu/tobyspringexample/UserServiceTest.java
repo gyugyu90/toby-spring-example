@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
@@ -13,12 +12,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.PlatformTransactionManager;
-import reflection.TransactionHandler;
 import user.dao.UserDao;
 import user.domain.Level;
 import user.domain.User;
-import user.service.TxProxyFactoryBean;
 import user.service.UserService;
 import user.service.UserServiceImpl;
 
@@ -28,9 +24,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -39,6 +36,9 @@ public class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserService testUserService;
 
     @Autowired
     private ApplicationContext context;
@@ -153,23 +153,14 @@ public class UserServiceTest {
     }
 
     @Test
-    @DirtiesContext // dynamic proxy factory bean을 직접 만들어 사용할 때는 없앴다가 다시 등장한 컨텍스트 무효화 annotation
     public void upgradeAllOrNothing() throws Exception {
-
-        TestUserService testUserService = new TestUserService(users.get(3).getId());
-        testUserService.setUserDao(this.userDao); // 수동 DI
-        testUserService.setMailSender(mailSender);
-
-        ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class);
-        txProxyFactoryBean.setTarget(testUserService);
-        UserService txUserService = (UserService) txProxyFactoryBean.getObject(); // UserService 인터페이스 타입의 다이내믹 프록시 생성
 
         // 초기화
         userDao.deleteAll();
         for(User user: users) userDao.add(user);
 
         try {
-            txUserService.upgradeLevels();
+            testUserService.upgradeLevels();
             fail("TestUserServiceException expected");
         } catch (TestUserServiceException ex) {
             // TestUserService가 던져주는 예외를 잡아서 계속 진행
@@ -180,13 +171,13 @@ public class UserServiceTest {
         checkLevelUpgraded(users.get(1), false);
     }
 
+    @Test
+    public void advisorAutoProxyCreator() {
+        assertThat(testUserService, instanceOf(Proxy.class));
+    }
 
-    static class TestUserService extends UserServiceImpl {
-        private String id;
-
-        private TestUserService(String id) {
-            this.id = id; // 예외를 발생시킬 User 오브젝트의 id를 지정할 수 있게 만든다.
-        }
+    static class TestUserServiceImpl extends UserServiceImpl {
+        private String id = "madnite1";
 
         @Override
         protected void upgradeLevel(User user) {

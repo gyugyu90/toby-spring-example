@@ -3,21 +3,14 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
-    <bean id="userService" class="org.springframework.aop.framework.ProxyFactoryBean">
-        <property name="target" ref="userServiceImpl" />
-        <!-- 어드바이스와 어드바이저를 동시에 설정해줄 수 있는 프로퍼티. 리스트에 어드바이스나 어드바이저의 빈 아이디를 값으로 넣어주면 된다. -->
-        <!-- 기존의 ref 애트리뷰트를 사용하는 DI와는 방식이 다름에 주의해야 한다. -->
-        <property name="interceptorNames" >
-            <list>
-                <value>transactionAdvisor</value>
-            </list>
-        </property>
-    </bean>
 
-    <bean id="userServiceImpl" class="user.service.UserServiceImpl">
+    <bean id="userService" class="user.service.UserServiceImpl">
         <property name="userDao" ref="userDao"/>
         <property name="mailSender" ref="mailSender"/>
     </bean>
+
+    <bean id="testUserService" class="com.gyugyu.tobyspringexample.UserServiceTest$TestUserServiceImpl"
+          parent="userService" />
 
     <bean id="mailSender" class="user.service.DummyMailSender"/>
 
@@ -29,7 +22,8 @@
         <property name="transactionManager" ref="transactionManager" />
     </bean>
 
-    <bean id="transactionPointcut" class="org.springframework.aop.support.NameMatchMethodPointcut">
+    <bean id="transactionPointcut" class="learningtest.jdk.proxy.NameMatchClassMethodPointcut">
+        <property name="mappedClassName" value="*ServiceImpl" />
         <property name="mappedName" value="upgrade*" />
     </bean>
 
@@ -49,5 +43,6 @@
         <property name="password" value="password"/>
     </bean>
 
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
 
 </beans>
