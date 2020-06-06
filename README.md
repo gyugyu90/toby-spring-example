@@ -8,6 +8,11 @@ MySQL 8.0.15
 mysql 접속이 잘 안 되면..
 `mysql.server restart`
 
+mysql 접속하기
+`mysql -u root -p`  
+password: password
+
+
 #### SQL
 1장
 ```SQL
