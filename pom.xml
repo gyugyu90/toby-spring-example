@@ -65,6 +65,12 @@
             <artifactId>aspectjweaver</artifactId>
             <version>1.9.5</version>
         </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.16</version>
+        </dependency>
     </dependencies>
 
     <build>
