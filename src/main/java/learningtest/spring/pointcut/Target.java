@@ -24,4 +24,12 @@ public class Target implements TargetInterface {
     public void method() {
 
     }
+
+    public static void main(String[] args) {
+        try {
+            System.out.println(Target.class.getMethod("minus", int.class, int.class));
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
 }
