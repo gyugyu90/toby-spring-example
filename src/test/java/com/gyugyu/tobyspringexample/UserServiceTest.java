@@ -5,19 +5,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import user.dao.UserDao;
 import user.domain.Level;
 import user.domain.User;
@@ -41,22 +36,13 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @Autowired
-    private PlatformTransactionManager transactionManager;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
     private UserService testUserService;
 
     @Autowired
-    private ApplicationContext context;
-
-    @Autowired
     private UserDao userDao;
-
-    @Autowired
-    private MailSender mailSender;
 
     private List<User> users;
 
@@ -193,7 +179,6 @@ public class UserServiceTest {
 
     @Test
     @Transactional
-    @Rollback(value = false)
     public void transactionSync() {
 
         userService.deleteAll();
