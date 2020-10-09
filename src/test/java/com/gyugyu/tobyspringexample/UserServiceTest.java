@@ -193,17 +193,20 @@ public class UserServiceTest {
     @Test
     public void transactionSync() {
 
+        userDao.deleteAll();
+        assertThat(userDao.getCount(), is(0));
+
         DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
         // 트랜잭션 매니저에게 트랜잭션을 요청하고 새로운 트랜잭션을 시작시킨다.
         TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
 
-        // 앞에서 만들어진 트랜잭션에 모두 참여한다.
-        userService.deleteAll();
-
         userService.add(users.get(0));
         userService.add(users.get(1));
+        assertThat(userDao.getCount(), is(2));
 
-        transactionManager.commit(txStatus); // 트랜잭션 커밋
+        transactionManager.rollback(txStatus); // 트랜잭션 커밋
+
+        assertThat(userDao.getCount(), is(0));
     }
 
     static class TestUserServiceImpl extends UserServiceImpl {
