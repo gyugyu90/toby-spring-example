@@ -13,7 +13,10 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import user.dao.UserDao;
 import user.domain.Level;
 import user.domain.User;
@@ -35,6 +38,9 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/test-applicationContext.xml")
 public class UserServiceTest {
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     @Autowired
     private UserService userService;
@@ -182,6 +188,22 @@ public class UserServiceTest {
     @Test(expected = TransientDataAccessResourceException.class)
     public void readOnlyTransactionAttribute() {
         testUserService.getAll();
+    }
+
+    @Test
+    public void transactionSync() {
+
+        DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
+        // 트랜잭션 매니저에게 트랜잭션을 요청하고 새로운 트랜잭션을 시작시킨다.
+        TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
+
+        // 앞에서 만들어진 트랜잭션에 모두 참여한다.
+        userService.deleteAll();
+
+        userService.add(users.get(0));
+        userService.add(users.get(1));
+
+        transactionManager.commit(txStatus); // 트랜잭션 커밋
     }
 
     static class TestUserServiceImpl extends UserServiceImpl {
