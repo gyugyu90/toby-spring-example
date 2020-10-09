@@ -6,12 +6,14 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 import user.dao.UserDao;
 import user.domain.Level;
 import user.domain.User;
@@ -23,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -164,6 +166,7 @@ public class UserServiceTest {
             fail("TestUserServiceException expected");
         } catch (TestUserServiceException ex) {
             // TestUserService가 던져주는 예외를 잡아서 계속 진행
+            ex.printStackTrace();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -176,8 +179,23 @@ public class UserServiceTest {
         assertThat(testUserService, instanceOf(Proxy.class));
     }
 
+    @Test(expected = TransientDataAccessResourceException.class)
+    public void readOnlyTransactionAttribute() {
+        testUserService.getAll();
+    }
+
     static class TestUserServiceImpl extends UserServiceImpl {
         private String id = "madnite1";
+
+        @Override
+        public List<User> getAll() {
+
+            for (User user: super.getAll()) {
+                super.update(user);
+            }
+
+            return null;
+        }
 
         @Override
         protected void upgradeLevel(User user) {
