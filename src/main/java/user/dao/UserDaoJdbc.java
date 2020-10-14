@@ -6,12 +6,15 @@ import org.springframework.jdbc.core.RowMapper;
 import user.domain.Level;
 import user.domain.User;
 import user.exception.DuplicateUserIdException;
+import user.sqlservice.SqlService;
 
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
 public class UserDaoJdbc implements UserDao {
+
+    private SqlService sqlService;
 
     private Map<String, String> sqlMap;
 
@@ -37,11 +40,15 @@ public class UserDaoJdbc implements UserDao {
         this.sqlMap = sqlMap;
     }
 
+    public void setSqlService(SqlService sqlService) {
+        this.sqlService = sqlService;
+    }
+
     public void add(final User user) throws DuplicateUserIdException {
 
         try {
             jdbcTemplate.update(
-                    sqlMap.get("add"),
+                    sqlService.getSql("userAdd"),
                     user.getId(), user.getName(), user.getPassword(),
                     user.getLevel().intValue(), user.getLogin(), user.getRecommend(), user.getEmail());
         } catch (DuplicateKeyException e) {
@@ -50,29 +57,28 @@ public class UserDaoJdbc implements UserDao {
     }
 
     public User get(String id){
-        return jdbcTemplate.queryForObject(sqlMap.get("get"), new Object[]{id}, userMapper);
+        return jdbcTemplate.queryForObject(sqlService.getSql("userGet"), new Object[]{id}, userMapper);
     }
 
     public void deleteAll() {
-        jdbcTemplate.update(sqlMap.get("deleteAll"));
+        jdbcTemplate.update(sqlService.getSql("userDeleteAll"));
     }
 
     public int getCount() {
-        return jdbcTemplate.query(connection -> connection.prepareStatement(sqlMap.get("getCount")), resultSet -> {
+        return jdbcTemplate.query(connection -> connection.prepareStatement(sqlService.getSql("userGetCount")), resultSet -> {
             resultSet.next();
             return resultSet.getInt(1);
         });
-        // queryForInt는 없어졌나..
     }
 
     public List<User> getAll() {
-        return jdbcTemplate.query(sqlMap.get("getAll"), userMapper);
+        return jdbcTemplate.query(sqlService.getSql("userGetAll"), userMapper);
     }
 
     @Override
     public void update(User user) {
         jdbcTemplate.update(
-                sqlMap.get("update"),
+                sqlService.getSql("userUpdate"),
                 user.getName(), user.getPassword(),
                 user.getLevel().intValue(), user.getLogin(), user.getRecommend(),
                 user.getId());
