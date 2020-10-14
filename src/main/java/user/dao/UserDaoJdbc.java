@@ -13,12 +13,7 @@ import java.util.Map;
 
 public class UserDaoJdbc implements UserDao {
 
-    private String sqlAdd;
-    private String sqlGet;
-    private String sqlDeleteAll;
-    private String sqlGetCount;
-    private String sqlGetAll;
-    private String sqlUpdate;
+    private Map<String, String> sqlMap;
 
     private JdbcTemplate jdbcTemplate;
 
@@ -38,35 +33,15 @@ public class UserDaoJdbc implements UserDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void setSqlAdd(String sqlAdd) {
-        this.sqlAdd = sqlAdd;
-    }
-
-    public void setSqlGet(String sqlGet) {
-        this.sqlGet = sqlGet;
-    }
-
-    public void setSqlDeleteAll(String sqlDeleteAll) {
-        this.sqlDeleteAll = sqlDeleteAll;
-    }
-
-    public void setSqlGetCount(String sqlGetCount) {
-        this.sqlGetCount = sqlGetCount;
-    }
-
-    public void setSqlGetAll(String sqlGetAll) {
-        this.sqlGetAll = sqlGetAll;
-    }
-
-    public void setSqlUpdate(String sqlUpdate) {
-        this.sqlUpdate = sqlUpdate;
+    public void setSqlMap(Map<String, String> sqlMap) {
+        this.sqlMap = sqlMap;
     }
 
     public void add(final User user) throws DuplicateUserIdException {
 
         try {
             jdbcTemplate.update(
-                    sqlAdd,
+                    sqlMap.get("add"),
                     user.getId(), user.getName(), user.getPassword(),
                     user.getLevel().intValue(), user.getLogin(), user.getRecommend(), user.getEmail());
         } catch (DuplicateKeyException e) {
@@ -75,15 +50,15 @@ public class UserDaoJdbc implements UserDao {
     }
 
     public User get(String id){
-        return jdbcTemplate.queryForObject(sqlGet, new Object[]{id}, userMapper);
+        return jdbcTemplate.queryForObject(sqlMap.get("get"), new Object[]{id}, userMapper);
     }
 
     public void deleteAll() {
-        jdbcTemplate.update(sqlDeleteAll);
+        jdbcTemplate.update(sqlMap.get("deleteAll"));
     }
 
     public int getCount() {
-        return jdbcTemplate.query(connection -> connection.prepareStatement(sqlGetCount), resultSet -> {
+        return jdbcTemplate.query(connection -> connection.prepareStatement(sqlMap.get("getCount")), resultSet -> {
             resultSet.next();
             return resultSet.getInt(1);
         });
@@ -91,13 +66,13 @@ public class UserDaoJdbc implements UserDao {
     }
 
     public List<User> getAll() {
-        return jdbcTemplate.query(sqlGetAll, userMapper);
+        return jdbcTemplate.query(sqlMap.get("getAll"), userMapper);
     }
 
     @Override
     public void update(User user) {
         jdbcTemplate.update(
-                sqlUpdate,
+                sqlMap.get("update"),
                 user.getName(), user.getPassword(),
                 user.getLevel().intValue(), user.getLogin(), user.getRecommend(),
                 user.getId());
