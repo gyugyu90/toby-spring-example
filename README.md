@@ -12,6 +12,8 @@ mysql 접속하기
 `mysql -u root -p`  
 password: password
 
+### Note
+- Java 11부터는 JAXB가 내장되어있지 않기 때문에 이전 버전을 써야 XML 부분 실습이 가능
 
 #### SQL
 1장
