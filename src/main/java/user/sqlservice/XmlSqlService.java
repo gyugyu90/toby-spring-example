@@ -12,11 +12,22 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class XmlSqlService implements SqlService{
+public class XmlSqlService implements SqlService, SqlRegistry, SqlReader{
+
+    private SqlReader sqlReader;
+    private SqlRegistry sqlRegistry;
 
     private final Map<String, String> sqlMap = new HashMap<>();
 
     private String sqlmapFile;
+
+    public void setSqlReader(SqlReader sqlReader) {
+        this.sqlReader = sqlReader;
+    }
+
+    public void setSqlRegistry(SqlRegistry sqlRegistry) {
+        this.sqlRegistry = sqlRegistry;
+    }
 
     public void setSqlmapFile(String sqlmapFile) {
         this.sqlmapFile = sqlmapFile;
@@ -24,6 +35,36 @@ public class XmlSqlService implements SqlService{
 
     @PostConstruct
     public void loadSql() {
+        sqlReader.read(this.sqlRegistry);
+    }
+
+
+    @Override
+    public String getSql(String key) throws SqlRetrievalFailureException {
+
+        try {
+            return this.sqlRegistry.findSql(key);
+        } catch (SqlNotFoundException ex) {
+            throw new SqlRetrievalFailureException(ex);
+        }
+    }
+
+    @Override
+    public void registerSql(String key, String sql) {
+        sqlMap.put(key, sql);
+    }
+
+    @Override
+    public String findSql(String key) throws SqlNotFoundException {
+        String sql = sqlMap.get(key);
+        if (sql == null)
+            throw new SqlRetrievalFailureException(key + "를 이용해서 SQL을 찾을 수 없습니다.");
+        else
+            return sql;
+    }
+
+    @Override
+    public void read(SqlRegistry sqlRegistry) {
         String contextPath = Sqlmap.class.getPackage().getName();
 
         try {
@@ -33,21 +74,10 @@ public class XmlSqlService implements SqlService{
             Sqlmap sqlmap = (Sqlmap) unmarshaller.unmarshal(is);
 
             for (SqlType sql: sqlmap.getSql()) {
-                sqlMap.put(sql.getKey(), sql.getValue());
+                sqlRegistry.registerSql(sql.getKey(), sql.getValue());
             }
         } catch (JAXBException ex) {
             throw new RuntimeException(ex);
         }
-    }
-
-
-    @Override
-    public String getSql(String key) throws SqlRetrievalFailureException {
-
-        String sql = sqlMap.get(key);
-        if (sql == null)
-            throw new SqlRetrievalFailureException(key + "를 이용해서 SQL을 찾을 수 없습니다.");
-        else
-            return sql;
     }
 }

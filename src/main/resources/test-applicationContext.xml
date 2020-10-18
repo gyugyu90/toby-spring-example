@@ -30,6 +30,9 @@
     </bean>
 
     <bean id="sqlService" class="user.sqlservice.XmlSqlService">
+        <property name="sqlReader" ref="sqlService" />
+        <property name="sqlRegistry" ref="sqlService" />
+
         <property name="sqlmapFile" value="/sqlmap-user.xml"/>
     </bean>
 
