@@ -29,9 +29,16 @@
         <property name="sqlService" ref="sqlService" />
     </bean>
 
-    <bean id="sqlService" class="user.sqlservice.XmlSqlService">
-        <property name="sqlmapFile" value="/sqlmap-user.xml"/>
+    <bean id="sqlService" class="user.sqlservice.BaseSqlService">
+        <property name="sqlReader" ref="sqlReader" />
+        <property name="sqlRegistry" ref="sqlRegistry" />
     </bean>
+
+    <bean id="sqlReader" class="user.sqlservice.JaxbXmlSqlReader">
+        <property name="sqlMapFile" value="/sqlmap-user.xml"/>
+    </bean>
+
+    <bean id="sqlRegistry" class="user.sqlservice.HashMapSqlRegistry"/>
 
     <bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
         <property name="driverClass" value="com.mysql.cj.jdbc.Driver"/>
