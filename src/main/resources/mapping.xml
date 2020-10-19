@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE mapping PUBLIC "-//EXOLAB/Castor Mapping DTD Version 1.0//EN" "http://castor.org/mapping.dtd">
+<mapping>
+    <class name="pringbook.sq1service.jaxb.Sq1map">
+        <map-to xml="sq1map" />
+        <field name="sq1" type="springbook.sq1service.jaxb.SqlType"
+           required="true" collection="arraylist">
+            <bind-xml name="sql" node="element" />
+        </field>
+    </class>
+    <class name="springbook.sq1service.jaxb.Sq1Type">
+        <map-to xm1="sq1" />
+        <field name="key" type="string" required="true">
+            <bind-xml name="key" node="attribute" />
+        </field>
+        <field name="value" type="string" required="true">
+            <bind-xml node="text" />
+        </field>
+    </class>
+</mapping>
