@@ -29,9 +29,12 @@
         <property name="sqlService" ref="sqlService" />
     </bean>
 
-    <bean id="sqlService" class="user.sqlservice.BaseSqlService">
-        <property name="sqlReader" ref="sqlReader" />
-        <property name="sqlRegistry" ref="sqlRegistry" />
+    <bean id="sqlService" class="user.sqlservice.OxmSqlService">
+        <property name="unmarshaller" ref="unmarshaller" />
+    </bean>
+
+    <bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+        <property name="contextPath" value="user.sqlservice.jaxb" />
     </bean>
 
     <bean id="sqlReader" class="user.sqlservice.JaxbXmlSqlReader">
