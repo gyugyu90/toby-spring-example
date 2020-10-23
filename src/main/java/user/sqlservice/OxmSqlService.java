@@ -20,16 +20,12 @@ public class OxmSqlService implements SqlService {
 
     private SqlRegistry sqlRegistry = new HashMapSqlRegistry();
 
-    public void setSqlRegistry(SqlRegistry sqlRegistry) {
-        this.sqlRegistry = sqlRegistry;
-    }
-
     public void setUnmarshaller(Unmarshaller unmarshaller) {
         oxmSqlReader.setUnmarshaller(unmarshaller);
     }
 
-    public void setSqlmap(Resource sqlmap) {
-        oxmSqlReader.setSqlmap(sqlmap);
+    public void setSqlRegistry(SqlRegistry sqlRegistry) {
+        this.sqlRegistry = sqlRegistry;
     }
 
     @Override
@@ -48,7 +44,6 @@ public class OxmSqlService implements SqlService {
     private class OxmSqlReader implements SqlReader {
 
         private Unmarshaller unmarshaller;
-        private static final String DEFAULT_SQLMAP_FILE = "/sqlmap-user.xml";
 
         private Resource sqlmap = new ClassPathResource("/sqlmap-user.xml", UserDao.class);
 

@@ -31,7 +31,7 @@
 
     <bean id="sqlService" class="user.sqlservice.OxmSqlService">
         <property name="unmarshaller" ref="unmarshaller" />
-        <property name="sqlmap" value="/sqlmap-user.xml" />
+        <property name="sqlRegistry" ref="sqlRegistry" />
     </bean>
 
     <bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
