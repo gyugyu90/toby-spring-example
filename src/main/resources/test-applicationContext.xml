@@ -10,7 +10,8 @@
                            http://www.springframework.org/schema/context/spring-context-3.0.xsd
                            http://www.springframework.org/schema/tx
                            http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
-                           http://www.springframework.org/schema/jdbc"
+                           http://www.springframework.org/schema/jdbc
+                           http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd"
 >
 
     <bean id="userService" class="user.service.UserServiceImpl">
@@ -56,14 +57,12 @@
 
     <tx:annotation-driven />
 
-    <context:annotation-config/>
-
     <bean id="sqlRegistry" class="user.sqlservice.updatable.EmbeddedDbSqlRegistry">
         <property name="dataSource" ref="embeddedDatabase" />
     </bean>
 
     <jdbc:embedded-database id="embeddedDatabase" type="HSQL">
         <jdbc:script location="classpath:sqlRegistrySchema.sql" />
-    </jdbc:embedded-database>뜨
+    </jdbc:embedded-database>
 
 </beans>
