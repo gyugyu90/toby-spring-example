@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "/test-applicationContext.xml")
+@ContextConfiguration(classes = TestApplicationContext.class)
 public class UserServiceTest {
 
     @Autowired
@@ -186,7 +186,7 @@ public class UserServiceTest {
         userService.add(users.get(1));
     }
 
-    static class TestUserServiceImpl extends UserServiceImpl {
+    public static class TestUserServiceImpl extends UserServiceImpl {
         private String id = "madnite1";
 
         @Override
