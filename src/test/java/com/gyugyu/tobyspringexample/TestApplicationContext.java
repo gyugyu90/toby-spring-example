@@ -1,7 +1,6 @@
 package com.gyugyu.tobyspringexample;
 
 import com.mysql.jdbc.Driver;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,8 +25,6 @@ import user.sqlservice.SqlService;
 import user.sqlservice.updatable.EmbeddedDbSqlRegistry;
 
 import javax.sql.DataSource;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 @Configuration
 @EnableTransactionManagement
@@ -111,27 +108,7 @@ public class TestApplicationContext {
                 .setType(EmbeddedDatabaseType.HSQL)
                 .addScript("classpath:sqlRegistrySchema.sql")
                 .build();
-        System.out.println("SSIBAL " + database);
         return database;
     }
 
-    @Test
-    public void name() {
-        String classpathStr = System.getProperty("java.class.path");
-        System.out.println(classpathStr);
-
-        URL[] urls = ((URLClassLoader) (Thread.currentThread().getContextClassLoader())).getURLs();
-        for (URL url : urls) {
-            System.out.println(url);
-        }
-
-        EmbeddedDatabase database = new EmbeddedDatabaseBuilder()
-                .setName("embeddedDatabase")
-                .setType(EmbeddedDatabaseType.HSQL)
-                .addScript("classpath:sqlRegistrySchema.sql")
-                .build();
-
-
-        System.out.println(database);
-    }
 }
