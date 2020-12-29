@@ -64,6 +64,6 @@
 
     <jdbc:embedded-database id="embeddedDatabase" type="HSQL">
         <jdbc:script location="classpath:sqlRegistrySchema.sql" />
-    </jdbc:embedded-database>
+    </jdbc:embedded-database>뜨
 
 </beans>
