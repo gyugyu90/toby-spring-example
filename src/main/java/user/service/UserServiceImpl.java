@@ -1,20 +1,25 @@
 package user.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.stereotype.Component;
 import user.dao.UserDao;
 import user.domain.Level;
 import user.domain.User;
 
 import java.util.List;
 
+@Component("userService")
 public class UserServiceImpl implements UserService {
 
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
 
+    @Autowired
     private MailSender mailSender;
 
+    @Autowired
     private UserDao userDao;
 
     public void setUserDao(UserDao userDao) {

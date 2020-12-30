@@ -3,6 +3,7 @@ package com.gyugyu.tobyspringexample;
 import com.mysql.jdbc.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -15,10 +16,8 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import user.dao.UserDao;
-import user.dao.UserDaoJdbc;
 import user.service.DummyMailSender;
 import user.service.UserService;
-import user.service.UserServiceImpl;
 import user.sqlservice.OxmSqlService;
 import user.sqlservice.SqlRegistry;
 import user.sqlservice.SqlService;
@@ -28,7 +27,12 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
+@ComponentScan(basePackages = "user")
 public class TestApplicationContext {
+
+    @Autowired SqlService sqlService;
+
+    @Autowired UserDao userDao;
 
     @Bean
     public DataSource dataSource() {
@@ -47,32 +51,10 @@ public class TestApplicationContext {
         return tm;
     }
 
-    @Autowired SqlService sqlService;
-
-    @Bean
-    public UserDao userDao() {
-        UserDaoJdbc userDaoJdbc = new UserDaoJdbc();
-        userDaoJdbc.setDataSource(dataSource());
-        userDaoJdbc.setSqlService(this.sqlService);
-        return userDaoJdbc;
-    }
-
-    @Bean
-    public UserService userService() {
-        UserServiceImpl userService = new UserServiceImpl();
-        userService.setUserDao(userDao());
-        userService.setMailSender(mailSender());
-        return userService;
-    }
-
     @Bean
     public UserService testUserService() {
-        UserServiceTest.TestUserServiceImpl testUserService = new UserServiceTest.TestUserServiceImpl();
-        testUserService.setUserDao(userDao());
-        testUserService.setMailSender(mailSender());
-        return testUserService;
+        return new UserServiceTest.TestUserServiceImpl();
     }
-
 
     @Bean
     public MailSender mailSender() {

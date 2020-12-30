@@ -1,8 +1,10 @@
 package user.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import user.domain.Level;
 import user.domain.User;
 import user.exception.DuplicateUserIdException;
@@ -10,13 +12,12 @@ import user.sqlservice.SqlService;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Map;
 
+@Repository
 public class UserDaoJdbc implements UserDao {
 
+    @Autowired
     private SqlService sqlService;
-
-    private Map<String, String> sqlMap;
 
     private JdbcTemplate jdbcTemplate;
 
@@ -32,12 +33,9 @@ public class UserDaoJdbc implements UserDao {
         return user;
     };
 
+    @Autowired
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-
-    public void setSqlMap(Map<String, String> sqlMap) {
-        this.sqlMap = sqlMap;
     }
 
     public void setSqlService(SqlService sqlService) {
