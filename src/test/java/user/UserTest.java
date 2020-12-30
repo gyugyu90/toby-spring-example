@@ -1,4 +1,4 @@
-package com.gyugyu.tobyspringexample;
+package user;
 
 import org.junit.Before;
 import org.junit.Test;

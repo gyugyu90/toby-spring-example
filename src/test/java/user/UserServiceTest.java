@@ -1,15 +1,17 @@
-package com.gyugyu.tobyspringexample;
+package user;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +34,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestApplicationContext.class)
+@ActiveProfiles("test")
+@ContextConfiguration(classes = {ApplicationContext.class, TestApplicationContext.class})
 public class UserServiceTest {
 
     @Autowired
@@ -43,6 +46,9 @@ public class UserServiceTest {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    DefaultListableBeanFactory bf;
 
     private List<User> users;
 
@@ -57,6 +63,12 @@ public class UserServiceTest {
         );
     }
 
+    @Test
+    public void beans() {
+        for (String beanDefinitionName : bf.getBeanDefinitionNames()) {
+            System.out.println(beanDefinitionName + "\t" + bf.getBean(beanDefinitionName).getClass().getName());
+        }
+    }
 
     @Test
     @DirtiesContext
@@ -186,7 +198,7 @@ public class UserServiceTest {
         userService.add(users.get(1));
     }
 
-    public static class TestUserServiceImpl extends UserServiceImpl {
+    public static class TestUserService extends UserServiceImpl {
         private String id = "madnite1";
 
         @Override
