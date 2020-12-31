@@ -4,6 +4,8 @@ import com.mysql.jdbc.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
@@ -28,15 +30,26 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
+@PropertySource("/database.properties")
 public class TestApplicationContext {
+
+    @Autowired
+    Environment env;
 
     @Bean
     public DataSource dataSource() {
         SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
         dataSource.setDriverClass(Driver.class);
-        dataSource.setUrl("jdbc:mysql://localhost/testdb?serverTimezone=Asia/Seoul");
-        dataSource.setUsername("root");
-        dataSource.setPassword("password");
+
+        try {
+            dataSource.setDriverClass((Class<? extends java.sql.Driver>)Class.forName(env.getProperty("db.driverClass")));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        dataSource.setUrl(env.getProperty("db.url"));
+        dataSource.setUsername(env.getProperty("db.usr"));
+        dataSource.setPassword(env.getProperty("db.pwd"));
         return dataSource;
     }
 
