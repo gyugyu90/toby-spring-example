@@ -2,6 +2,7 @@ package com.gyugyu.tobyspringexample;
 
 import com.mysql.jdbc.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -36,20 +37,28 @@ public class TestApplicationContext {
     @Autowired
     Environment env;
 
+    @Value("${db.driverClass}")
+    Class<? extends Driver> driverClass;
+
+    @Value("${db.url}")
+    String url;
+
+    @Value("${db.usr}")
+    String username;
+
+    @Value("${db.pwd}")
+    String password;
+
     @Bean
     public DataSource dataSource() {
         SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
         dataSource.setDriverClass(Driver.class);
 
-        try {
-            dataSource.setDriverClass((Class<? extends java.sql.Driver>)Class.forName(env.getProperty("db.driverClass")));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        dataSource.setDriverClass(driverClass);
 
-        dataSource.setUrl(env.getProperty("db.url"));
-        dataSource.setUsername(env.getProperty("db.usr"));
-        dataSource.setPassword(env.getProperty("db.pwd"));
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
         return dataSource;
     }
 
