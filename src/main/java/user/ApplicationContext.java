@@ -1,10 +1,12 @@
 package user;
 
 import com.mysql.jdbc.Driver;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -16,7 +18,20 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 @ComponentScan(basePackages = "user")
 @Import(SqlServiceContext.class)
+@PropertySource("/database.properties")
 public class ApplicationContext {
+
+    @Value("${db.driverClass}")
+    Class<? extends Driver> driverClass;
+
+    @Value("${db.url}")
+    String url;
+
+    @Value("${db.usr}")
+    String username;
+
+    @Value("${db.pwd}")
+    String password;
 
     @Bean
     public DataSource dataSource() {
