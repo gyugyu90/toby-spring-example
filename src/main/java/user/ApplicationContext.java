@@ -7,10 +7,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import user.dao.UserDao;
+import user.sqlservice.SqlMapConfig;
 
 import javax.sql.DataSource;
 
@@ -19,7 +23,7 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = "user")
 @Import(SqlServiceContext.class)
 @PropertySource("/database.properties")
-public class ApplicationContext {
+public class ApplicationContext implements SqlMapConfig {
 
     @Value("${db.driverClass}")
     Class<? extends Driver> driverClass;
@@ -50,4 +54,8 @@ public class ApplicationContext {
         return tm;
     }
 
+    @Override
+    public Resource getSqlMapResource() {
+        return new ClassPathResource("/sqlmap-user.xml", UserDao.class);
+    }
 }

@@ -1,5 +1,6 @@
 package user.sqlservice;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.Unmarshaller;
@@ -28,6 +29,10 @@ public class OxmSqlService implements SqlService {
         this.sqlRegistry = sqlRegistry;
     }
 
+    public void setSqlMap(Resource resource) {
+        oxmSqlReader.setSqlmap(resource);
+    }
+
     @Override
     public String getSql(String key) throws SqlRetrievalFailureException {
         return baseSqlService.getSql(key);
@@ -45,7 +50,8 @@ public class OxmSqlService implements SqlService {
 
         private Unmarshaller unmarshaller;
 
-        private Resource sqlmap = new ClassPathResource("/sqlmap-user.xml", UserDao.class);
+        @Autowired
+        private Resource sqlmap;
 
         public void setUnmarshaller(Unmarshaller unmarshaller) {
             this.unmarshaller = unmarshaller;
