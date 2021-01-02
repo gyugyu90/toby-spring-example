@@ -36,10 +36,10 @@ public class ApplicationContext {
     @Bean
     public DataSource dataSource() {
         SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
-        dataSource.setDriverClass(Driver.class);
-        dataSource.setUrl("jdbc:mysql://localhost/testdb?serverTimezone=Asia/Seoul");
-        dataSource.setUsername("root");
-        dataSource.setPassword("vksehr12!@");
+        dataSource.setDriverClass(driverClass);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
         return dataSource;
     }
 
