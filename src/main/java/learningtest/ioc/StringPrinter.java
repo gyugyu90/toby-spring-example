@@ -11,6 +11,6 @@ public class StringPrinter implements Printer {
 
     @Override
     public String toString() {
-        return "StringPrinter{buffer=" + buffer + '}';
+        return this.buffer.toString();
     }
 }
