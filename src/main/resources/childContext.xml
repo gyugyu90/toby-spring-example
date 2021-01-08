@@ -7,6 +7,4 @@
         <property name="name" value="Child"/>
         <property name="printer" ref="printer" />
     </bean>
-
-    <bean id="printer" class="learningtest.ioc.StringPrinter" />
 </beans>

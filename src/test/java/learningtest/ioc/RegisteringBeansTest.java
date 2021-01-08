@@ -6,6 +6,7 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 
 import static org.hamcrest.Matchers.*;
@@ -62,5 +63,24 @@ public class RegisteringBeansTest {
         hello.print();
 
         assertThat(ac.getBean("printer").toString(), is("Hello Summer"));
+    }
+
+    @Test
+    public void testContextInheritance() {
+        GenericApplicationContext parent = new GenericXmlApplicationContext("classpath:/parentContext.xml");
+        GenericApplicationContext child = new GenericApplicationContext(parent);
+
+        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(child);
+        reader.loadBeanDefinitions("classpath:/childContext.xml");
+        child.refresh();
+
+        Printer printer = child.getBean("printer", Printer.class);
+        assertThat(printer, is(notNullValue()));
+
+        Hello hello = child.getBean("hello", Hello.class);
+        assertThat(hello, is(notNullValue()));
+
+        hello.print();
+        assertThat(printer.toString(), is("Hello Child"));
     }
 }
