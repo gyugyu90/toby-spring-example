@@ -1,10 +1,13 @@
 package learningtest.ioc;
 
+import learningtest.ioc.bean.AnnotatedHello;
 import org.junit.Test;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
@@ -82,5 +85,24 @@ public class RegisteringBeansTest {
 
         hello.print();
         assertThat(printer.toString(), is("Hello Child"));
+    }
+
+    @Test
+    public void simpleBeanScanning() {
+        ApplicationContext context = new AnnotationConfigApplicationContext("learningtest.ioc");
+        AnnotatedHello hello = context.getBean("annotatedHello", AnnotatedHello.class);
+
+        assertThat(hello, is(notNullValue()));
+    }
+
+    @Test
+    public void simpleBeanScanningFromConfig() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(AnnotatedHelloConfig.class);
+        AnnotatedHello hello = context.getBean("annotatedHello", AnnotatedHello.class);
+
+        assertThat(hello, is(notNullValue()));
+
+        AnnotatedHelloConfig config = context.getBean("annotatedHelloConfig", AnnotatedHelloConfig.class);
+        assertThat(config, is(notNullValue()));
     }
 }
